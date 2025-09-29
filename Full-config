@@ -1,0 +1,217 @@
+sysname Nikunjo-PoP
+#
+vlan batch 103 1919 to 1923 2921 to 2925
+#
+authentication-profile name default_authen_profile
+authentication-profile name dot1x_authen_profile
+authentication-profile name dot1xmac_authen_profile
+authentication-profile name mac_authen_profile
+authentication-profile name multi_authen_profile
+authentication-profile name portal_authen_profile
+#
+telnet server enable
+telnet server-source -i Vlanif103
+#
+http server-source -i Vlanif103
+#
+diffserv domain default
+#
+radius-server template default
+#
+pki realm default
+ certificate-check none
+#                                         
+free-rule-template name default_free_rule
+#
+portal-access-profile name portal_access_profile
+#
+drop-profile default
+#
+vlan 103
+ name MGT
+vlan 1919
+ name UTTRA-IIG
+vlan 1920
+ name UTTRA-GGC
+vlan 1921
+ name UTTRA-FNA
+vlan 1922
+ name UTTRA-BDIX
+vlan 1923
+ name UTTRA-CDN
+vlan 2921
+ name EXA-DATA-D-VI-2921
+vlan 2922
+ name EXA-DATA-D-VI-2922
+vlan 2923
+ name EXA-DATA-D-VI-2923                  
+vlan 2924
+ name EXA-DATA-D-VI-2924
+vlan 2925
+ name EXA-DATA-D-VI-2925
+#
+aaa
+ authentication-scheme default
+  authentication-mode local
+ authentication-scheme radius
+  authentication-mode radius
+ authorization-scheme default
+  authorization-mode local
+ accounting-scheme default
+  accounting-mode none
+ local-aaa-user password policy administrator
+  password history record number 0
+  password expire 0
+ domain default
+  authentication-scheme radius
+  accounting-scheme default
+  radius-server default
+ domain default_admin
+  authentication-scheme default
+  accounting-scheme default               
+ local-user noc password irreversible-cipher $1c$S@RW<p_/E)$D_:SW7Bu7ZDqX(FR~;BO_m&{%HhvJT~kJC1oV,XU$
+ local-user noc privilege level 15
+ local-user noc ftp-directory flash:
+ local-user noc http-directory l3@noc#007
+ local-user noc service-type telnet terminal ssh ftp x25-pad http
+ local-user admin password irreversible-cipher $1c$SRt9"VBE:7$\r`8Z5sm9+*yo~Qz"rk/ifZnCE5=~7e]8_6\uzJ;$
+ local-user admin privilege level 15
+ local-user admin service-type telnet http
+#
+interface Vlanif1
+#
+interface Vlanif103
+ ip address 10.1.173.4 255.255.255.0
+#
+interface MEth0/0/1
+ ip address 192.168.1.253 255.255.255.0
+#
+interface Eth-Trunk1
+ port link-type trunk
+ port trunk allow-pass vlan 2 to 4094
+ mode lacp
+#
+interface Eth-Trunk2
+ port link-type trunk                     
+ port trunk allow-pass vlan 2 to 4094
+ mode lacp
+#
+interface XGigabitEthernet0/0/1
+#
+interface XGigabitEthernet0/0/2
+#
+interface XGigabitEthernet0/0/3
+#
+interface XGigabitEthernet0/0/4
+#
+interface XGigabitEthernet0/0/5
+#
+interface XGigabitEthernet0/0/6
+#
+interface XGigabitEthernet0/0/7
+#
+interface XGigabitEthernet0/0/8
+#
+interface XGigabitEthernet0/0/9
+#
+interface XGigabitEthernet0/0/10
+#
+interface 100GE0/0/1
+ eth-trunk 1
+#
+interface 100GE0/0/2
+ description Khawaja-Tower
+ eth-trunk 1
+#
+interface 100GE0/0/3
+#
+interface 100GE0/0/4
+ port link-type trunk
+ port trunk allow-pass vlan 2 to 4094
+#
+interface 100GE0/0/5
+ eth-trunk 2
+#
+interface 100GE0/0/6
+ description Uttara-PoP
+ eth-trunk 2
+#
+interface NULL0                           
+#
+undo icmp name timestamp-request receive
+#
+ip route-static 0.0.0.0 0.0.0.0 10.1.173.1
+#
+snmp-agent
+snmp-agent local-engineid 800007DB0304F35290B400
+snmp-agent community read cipher %^%#'Q}r%h"S!5kPWJ4ga=QMuoQuR<;\LH)$%D7wWux;-JG_Rhq#H@OAenQSjbS-0dhQ.LW7TQLc0DT'b5m6%^%#
+snmp-agent sys-info contact noc@layer3.net.bd
+snmp-agent sys-info location NIKUNJO-PoP
+snmp-agent sys-info version v2c
+undo snmp-agent sys-info version v3
+snmp-agent trap source Vlanif103
+snmp-agent notification-log enable
+snmp-agent trap enable
+undo snmp-agent protocol source-status all-interface
+snmp-agent protocol source-interface Vlanif103
+undo snmp-agent protocol source-status ipv6 all-interface
+#
+ssh user noc
+ssh user noc authentication-type password
+ssh user ruhul
+ssh user ruhul authentication-type password
+ssh server cipher aes256_ctr aes128_ctr   
+ssh server hmac sha2_256
+ssh server key-exchange dh_group16_sha512 dh_group15_sha512 dh_group14_sha256 dh_group_exchange_sha256
+ssh client cipher aes256_ctr aes128_ctr
+ssh client hmac sha2_256
+ssh client key-exchange dh_group16_sha512 dh_group15_sha512 dh_group14_sha256 dh_group_exchange_sha256
+ssh server dh-exchange min-len 2048
+ssh server publickey rsa_sha2_512 rsa_sha2_256
+#
+capwap dtls cert-mandatory-match enable
+#
+user-interface con 0
+ authentication-mode password
+ set authentication password cipher $1c$DM$kB]A'1O$vZO78f=xz(Z"*b-k`iKPd}48Eb00wH5z(iQ+b@t~$
+user-interface vty 0 4
+ authentication-mode password
+ user privilege level 15
+ set authentication password cipher $1c$kxRFRK131.$hvRfQX]Px48Cfw!L7M.-3)T$6h4,"*ObJ_"RruW~$
+ protocol inbound telnet
+user-interface vty 16 20
+ authentication-mode aaa
+ user privilege level 15
+ protocol inbound telnet
+#
+wlan                                      
+ traffic-profile name default
+ security-profile name default
+ security-profile name default-wds
+ security-profile name default-mesh
+ ssid-profile name default
+ vap-profile name default
+ wds-profile name default
+ mesh-handover-profile name default
+ mesh-profile name default
+ regulatory-domain-profile name default
+ air-scan-profile name default
+ rrm-profile name default
+ radio-2g-profile name default
+ radio-5g-profile name default
+ wids-spoof-profile name default
+ wids-whitelist-profile name default
+ wids-profile name default
+ ap-system-profile name default
+ port-link-profile name default
+ wired-port-profile name default
+ ap-group name default
+ provision-ap
+#
+dot1x-access-profile name dot1x_access_profile
+#
+mac-access-profile name mac_access_profile
+#
+ops
+#
+return
